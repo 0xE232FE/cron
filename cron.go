@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"fmt"
 	"log"
 	"runtime"
 	"sort"
@@ -23,6 +24,7 @@ type Cron struct {
 	running  bool
 	ErrorLog *log.Logger
 	location *time.Location
+	PanicCh  chan string
 }
 
 type EntryID int
@@ -94,6 +96,7 @@ func NewWithLocation(clock clockwork.Clock, location *time.Location) *Cron {
 		running:  false,
 		ErrorLog: nil,
 		location: location,
+		PanicCh:  make(chan string, 10),
 	}
 }
 
@@ -190,7 +193,10 @@ func (c *Cron) runWithRecovery(j Job) {
 			const size = 64 << 10
 			buf := make([]byte, size)
 			buf = buf[:runtime.Stack(buf, false)]
-			c.logf("cron: panic running job: %v\n%s", r, buf)
+			select {
+			case c.PanicCh <- fmt.Sprintf("cron: panic running job: %v\n%s", r, buf):
+			default:
+			}
 		}
 	}()
 	j.Run()
