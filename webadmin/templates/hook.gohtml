@@ -1,0 +1,35 @@
+{{ define "content" }}
+<table class="mb-1">
+    <tr><td>Hook ID:</td><td><span class="monospace">{{ .Hook.ID }}</span></td></tr>
+    <tr><td>Entry ID:</td><td>{{ if .Hook.EntryID }}<span class="monospace"><a href="/entries/{{ .Hook.EntryID }}">{{ .Hook.EntryID }}</a></span>{{ else }}-{{ end }}</td></tr>
+    <tr><td>Event:</td><td>{{ .Hook.EventType }}</td></tr>
+    <tr><td>Label:</td><td>{{ if .Hook.Label }}{{ .Hook.Label }}{{ else }}-{{ end }}</td></tr>
+    <tr><td>Active:</td><td>{{ if .Hook.Active }}<span class="success">T</span>{{ else }}<span class="danger">F</span>{{ end }}</td></tr>
+</table>
+<hr />
+<div class="mb-1">
+    {{ if .Hook.Active }}
+        <form method="POST" class="d-inline-block">
+            <input type="hidden" name="formName" value="disableHook" />
+            <input type="submit" value="Disable" />
+        </form>
+    {{ else }}
+        <form method="POST" class="d-inline-block">
+            <input type="hidden" name="formName" value="enableHook" />
+            <input type="submit" value="Enable" />
+        </form>
+    {{ end }}
+    <form method="POST" class="d-inline-block">
+        <input type="hidden" name="formName" value="removeHook" />
+        <input type="submit" value="Remove" />
+    </form>
+</div>
+<div class="mb-1">
+    <label for="label">Hook label:</label>
+    <form method="POST">
+        <input type="hidden" name="formName" value="updateLabel" />
+        <input type="text" name="label" value="{{ .Hook.Label }}" placeholder="Label" />
+        <input type="submit" value="Update label" id="label" />
+    </form>
+</div>
+{{ end }}
